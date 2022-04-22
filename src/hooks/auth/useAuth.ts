@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import { axiosInstance } from "../../api";
 import { signinEndPoint, signupEndPoint } from "../../api/constant";
 import { SignInInput, SignUpInput, UserResponseType } from "../types";
+import { useUser } from "./useUser";
 
 type UseAuth = {
   signin: (data:SignInInput) => Promise<void>;
@@ -16,6 +17,7 @@ type AuthResponseType = UserResponse | ErrorResponse;
 const SERVER_ERROR = "There was an error connecting the server";
 
 export const useAuth = (): UseAuth => {
+  const {updateUser, clearUser} = useUser();
   const authServerCall = async <T>(urlEndpoint:string,inputData: T) => {
     try {
       const { data, status }: AxiosResponse<AuthResponseType> =
@@ -33,7 +35,7 @@ export const useAuth = (): UseAuth => {
       }
       if ("user" in data && "token" in data.user) {
         //TODO show toast
-        //TODO - updateUser
+        updateUser(data.user);
       }
     } catch (error) {
       const title =
@@ -54,6 +56,7 @@ export const useAuth = (): UseAuth => {
 
   const signout = () => {
       //TODO Clear the user cache from useUser
+    clearUser();
   }
 
 
