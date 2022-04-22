@@ -1,7 +1,7 @@
 import axios, { AxiosResponse } from "axios";
 import { axiosInstance } from "../../api";
 import { signinEndPoint, signupEndPoint } from "../../api/constant";
-import { SignInInput, SignUpInput, User } from "../types";
+import { SignInInput, SignUpInput, UserResponseType } from "../types";
 
 type UseAuth = {
   signin: (data:SignInInput) => Promise<void>;
@@ -9,7 +9,7 @@ type UseAuth = {
   signout: () => void;
 };
 
-type UserResponse = { user: User };
+type UserResponse = { user: UserResponseType };
 type ErrorResponse = { message: string };
 type AuthResponseType = UserResponse | ErrorResponse;
 
@@ -20,7 +20,7 @@ export const useAuth = (): UseAuth => {
     try {
       const { data, status }: AxiosResponse<AuthResponseType> =
         await axiosInstance({
-          url: signinEndPoint,
+          url: urlEndpoint,
           method: "POST",
           data: inputData,
           headers: { "Content-Type": "application/json" },

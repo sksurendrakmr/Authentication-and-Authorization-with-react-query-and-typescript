@@ -1,13 +1,13 @@
-import { User } from "../hooks/types";
+import { UserResponseType } from "../hooks/types";
 
 const USER_LOCALSTORAGE_KEY = "user-token";
 
-export const getStoredUser = (): User | null => {
+export const getStoredUser = (): UserResponseType | null => {
   const storedUser = localStorage.getItem(USER_LOCALSTORAGE_KEY);
   return storedUser ? JSON.parse(storedUser) : null;
 };
 
-export const setStoredUser = (user: User) => {
+export const setStoredUser = (user: UserResponseType) => {
   localStorage.setItem(USER_LOCALSTORAGE_KEY, JSON.stringify(user));
 };
 
