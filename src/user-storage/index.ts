@@ -1,4 +1,4 @@
-import { User } from "../api/ApiTypes";
+import { User } from "../hooks/types";
 
 const USER_LOCALSTORAGE_KEY = "user-token";
 
