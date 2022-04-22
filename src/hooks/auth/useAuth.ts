@@ -55,7 +55,6 @@ export const useAuth = (): UseAuth => {
   }
 
   const signout = () => {
-      //TODO Clear the user cache from useUser
     clearUser();
   }
 
