@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from "react";
+import React, { useCallback, useContext, useMemo, useState } from "react";
 import {
   InputBase,
   InputBaseProps,
@@ -8,6 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Box } from "@mui/system";
+import { useEffectAfterMount } from "../hooks/common/useEffectAfterMount";
 
 type CommonProps = {
   sx?: SxProps;
@@ -17,6 +18,8 @@ type CommonProps = {
 type FormProps = {
   children: React.ReactNode;
   name: string;
+  value?: string | null;
+  handleChange?: (value: string) => void;
 };
 
 type LabelProps = CommonProps & {
@@ -29,17 +32,45 @@ type FormInputProps = Omit<
 > & {
   containerSx?: SxProps;
   paperProps?: PaperProps;
-  value: unknown;
-  onChange: React.ChangeEventHandler<HTMLTextAreaElement | HTMLInputElement>;
 };
 
 type FormContextType = {
   name: string;
+  value: string;
+  setValue: (value: React.ChangeEvent<HTMLInputElement>) => void;
 };
 const FormInputContext = React.createContext({} as FormContextType);
 
-export const FormInput = ({ children, name }: FormProps) => {
-  const values = useMemo(() => ({ name }), [name]);
+export const FormInput = ({
+  children,
+  name,
+  value = null,
+  handleChange,
+}: FormProps) => {
+  const [formValue, setFormValue] = useState("");
+
+  //Determining Whether the component is controlled by react or not.
+  const isControlled = value && handleChange;
+  const val = isControlled ? value : formValue;
+  const handleOnChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      isControlled ? handleChange(value) : setFormValue(value);
+    },
+    [isControlled, handleChange]
+  );
+
+  useEffectAfterMount(() => {
+    if (!isControlled) {
+      handleChange && handleChange(formValue);
+    }
+  }, [formValue, handleChange, isControlled]);
+
+  const values = useMemo(
+    () => ({ name, value: val, setValue: handleOnChange }),
+    [name, val, handleOnChange]
+  );
+
   return (
     <FormInputContext.Provider value={values}>
       <Box sx={{ width: 500, display: "flex", flexDirection: "column" }}>
@@ -69,14 +100,12 @@ const Label = ({ text, sx: s = {}, ...otherProps }: LabelProps) => {
 };
 
 const Input = ({
-  value,
-  onChange,
   placeholder,
   paperProps = {},
   containerSx = {},
   ...otherProps
 }: FormInputProps) => {
-  const { name } = useContext(FormInputContext);
+  const { name, value, setValue } = useContext(FormInputContext);
   return (
     <Paper
       elevation={0}
@@ -98,7 +127,7 @@ const Input = ({
         name={name}
         sx={{ flex: 1 }}
         value={value}
-        onChange={onChange}
+        onChange={setValue}
         {...otherProps}
       />
     </Paper>
